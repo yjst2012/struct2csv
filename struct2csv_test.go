@@ -525,7 +525,7 @@ func TestMarshal(t *testing.T) {
 			"Towel", "", "Zaphod,Beeblebrox"},
 	}
 	tc := New()
-	data, err := tc.Marshal(Tags{})
+	data, err := tc.Marshal(Tags{}, true)
 	if err != nil {
 		if err.Error() != "struct2csv: a type of slice is required: type was struct" {
 			t.Errorf("Expected \"struct2csv: a type of slice is required: type was struct\", got %q", err)
@@ -537,7 +537,7 @@ func TestMarshal(t *testing.T) {
 	}
 NILSLICE:
 	var sl []string
-	data, err = tc.Marshal(sl)
+	data, err = tc.Marshal(sl, true)
 	if err != nil {
 		if err.Error() != "struct2csv: the slice of structs was nil" {
 			t.Errorf("Expected \"struct2csv: the slice of structs was nil\", got %q", err)
@@ -549,7 +549,7 @@ NILSLICE:
 	}
 ZEROSLICE:
 	sl = make([]string, 0)
-	data, err = tc.Marshal(sl)
+	data, err = tc.Marshal(sl, true)
 	if err != nil {
 		if err.Error() != "struct2csv: the slice of structs was empty" {
 			t.Errorf("Expected \"struct2csv: the slice of structs was empty\", got %q", err)
@@ -561,7 +561,7 @@ ZEROSLICE:
 	}
 NONSTRUCT:
 	sl = []string{"hello", "world"}
-	data, err = tc.Marshal(sl)
+	data, err = tc.Marshal(sl, true)
 	if err != nil {
 		if err.Error() != "struct2csv: a slice of type struct is required: slice type was string" {
 			t.Errorf("Expected \"struct2csv: a slice of type struct is required: slice type was string\", %q", err)
@@ -572,7 +572,7 @@ NONSTRUCT:
 		t.Error("Expected an error, got none")
 	}
 BASIC:
-	data, err = tc.Marshal(tsts)
+	data, err = tc.Marshal(tsts, true)
 	if err != nil {
 		t.Errorf("expected no error, got %q", err)
 		return
@@ -592,7 +592,7 @@ BASIC:
 
 func TestMarshalStructs(t *testing.T) {
 	tc := New()
-	rows, err := tc.Marshal(EmbeddedTests)
+	rows, err := tc.Marshal(EmbeddedTests, true)
 	if err != nil {
 		t.Errorf("did not expect an error: got %q", err)
 		return
@@ -657,7 +657,7 @@ func TestPtrStructs(t *testing.T) {
 	m1 := map[string][]*Basic{"parks": []*Basic{bsc}}
 	tsts[1].PMapPBasicSlice = &m1
 	enc := New()
-	rows, err := enc.Marshal(tsts)
+	rows, err := enc.Marshal(tsts, true)
 	if err != nil {
 		t.Errorf("unexpected error: %q", err)
 		return
@@ -737,7 +737,7 @@ func TestComplicated(t *testing.T) {
 	complexTests[0].Map2DSlice["Canada"] = [][]string{[]string{"Calgary", "Edmonton", "Fort McMurray"}, []string{"Winnipeg"}}
 	complexTests[0].Map2DSlice["USA"] = [][]string{[]string{"San Diego", "Los Angeles"}}
 	tc := New()
-	rows, err := tc.Marshal(complexTests)
+	rows, err := tc.Marshal(complexTests, true)
 	if err != nil {
 		t.Errorf("unexpected error: %q", err)
 		return
@@ -832,7 +832,7 @@ func TestPtrs(t *testing.T) {
 	m := make(map[bool]*bool)
 	tst[0].PBoolM = &m
 	tc := New()
-	data, err := tc.Marshal(tst)
+	data, err := tc.Marshal(tst, true)
 	if err != nil {
 		t.Errorf("Unexpected error %q", err)
 	}

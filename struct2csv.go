@@ -213,7 +213,7 @@ func (e *Encoder) GetRow(v interface{}) ([]string, error) {
 // key:value pairs.
 //
 // If the passed data isn't a slice of structs an error will be returned.
-func (e *Encoder) Marshal(v interface{}) ([][]string, error) {
+func (e *Encoder) Marshal(v interface{}, withHeader bool) ([][]string, error) {
 	// must be a slice
 	if reflect.TypeOf(v).Kind() != reflect.Slice {
 		return nil, StructSliceError{kind: reflect.TypeOf(v).Kind()}
@@ -228,17 +228,19 @@ func (e *Encoder) Marshal(v interface{}) ([][]string, error) {
 	}
 	var rows [][]string
 	// get the first value in the slice to get the struct's field names
-	s := val.Index(0)
-	switch s.Kind() {
-	case reflect.Struct:
-		cols := e.getColNames(s.Interface())
-		// keep a copy
-		e.colNames = make([]string, len(cols))
-		_ = copy(e.colNames, cols)
-		// add as a row
-		rows = append(rows, cols)
-	default:
-		return nil, StructSliceError{kind: reflect.Slice, sliceKind: s.Kind()}
+	if withHeader {
+		s := val.Index(0)
+		switch s.Kind() {
+		case reflect.Struct:
+			cols := e.getColNames(s.Interface())
+			// keep a copy
+			e.colNames = make([]string, len(cols))
+			_ = copy(e.colNames, cols)
+			// add as a row
+			rows = append(rows, cols)
+		default:
+			return nil, StructSliceError{kind: reflect.Slice, sliceKind: s.Kind()}
+		}
 	}
 	// go through each element in the slice and marshal the element'd data.
 	for i := 0; i < val.Len(); i++ {

@@ -55,7 +55,7 @@ func (w *Writer) WriteStruct(st interface{}) error {
 // includes writing out the column names as the first row.  When done, Flush
 // is called.
 func (w *Writer) WriteStructs(st interface{}) error {
-	rows, err := w.e.Marshal(st)
+	rows, err := w.e.Marshal(st, true)
 	if err != nil {
 		return err
 	}
