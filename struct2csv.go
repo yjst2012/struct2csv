@@ -277,7 +277,7 @@ func (e *Encoder) marshal(val reflect.Value, child bool) (cols []string, ok bool
 	case reflect.Struct:
 		// support time.Time
 		if val.Type() == reflect.TypeOf(time.Time{}) {
-			s = fmt.Sprintf(val.Interface().(time.Time).Format(time.RFC3339Nano)) // Error in .Interface()
+			s = fmt.Sprintf(val.Interface().(time.Time).Format(time.RFC3339Nano))
 			break
 		}
 		return e.marshalStruct(val.Interface(), true)
@@ -316,6 +316,17 @@ func (e *Encoder) marshalStruct(str interface{}, child bool) ([]string, bool) {
 			continue
 		}
 		vF := val.Field(i)
+		if vF.Kind() == reflect.Int64 && strings.HasSuffix(name, "Nanos") {
+			// support int64 Nano time format with the name suffix is Nanos
+			if vF.Int() == 0 {
+				cols = append(cols, "")
+				continue
+			}
+			tz, _ := time.LoadLocation("Pacific/Auckland")
+			date := time.Unix(0, vF.Int()).In(tz).Format(time.RFC3339)
+			cols = append(cols, date)
+			continue
+		}
 		tmp, ok := e.marshal(vF, child)
 		if !ok {
 			// wasn't a supported kind, skip
