@@ -277,7 +277,7 @@ func (e *Encoder) marshal(val reflect.Value, child bool) (cols []string, ok bool
 	case reflect.Struct:
 		// support time.Time
 		if val.Type() == reflect.TypeOf(time.Time{}) {
-			s = fmt.Sprintf(val.Interface().(time.Time).Format(time.RFC3339Nano))
+			s = fmt.Sprintf(val.Interface().(time.Time).Format(time.RFC3339))
 			break
 		}
 		return e.marshalStruct(val.Interface(), true)
