@@ -26,6 +26,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // A StructRequiredError is returned when a non-struct type is received.
@@ -177,6 +178,10 @@ func (e *Encoder) getColNames(v interface{}) []string {
 		case reflect.Struct:
 			tmp := e.getColNames(vF.Interface())
 			cols = append(cols, tmp...)
+			// support time.Time
+			if tF.Type == reflect.TypeOf(time.Time{}) {
+				break
+			}
 			continue
 		default:
 			ok := supportedBaseKind(vF)
@@ -268,6 +273,11 @@ func (e *Encoder) marshal(val reflect.Value, child bool) (cols []string, ok bool
 			return e.marshal(vv, child)
 		}
 	case reflect.Struct:
+		// support time.Time
+		if val.Type() == reflect.TypeOf(time.Time{}) {
+			s = fmt.Sprintf(val.Interface().(time.Time).Format(time.RFC3339Nano)) // Error in .Interface()
+			break
+		}
 		return e.marshalStruct(val.Interface(), true)
 	case reflect.Map:
 		s, ok = e.marshalMap(val, child)
